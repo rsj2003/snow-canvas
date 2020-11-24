@@ -22,10 +22,8 @@ let $snowControllerClose;
 let $snowControllerCover;
 let snowInput;
 let snowOldSpeed = snowSpeed;
-let snowOldSize;
-let snowOldCentury;
-let snowOldMinOpacity;
-let snowOldMaxOpacity;
+let snowOldSize = snowSize;
+let snowOldCentury = snowCentury;
 let mouseDownX = 0;
 let mouseDownY = 0;
 let snowControllerX = 0;
@@ -66,7 +64,25 @@ window.addEventListener("resize", function () {
 
 function snowMove() {
   snowCtx.clearRect(0, 0, $snowCanvas.width, $snowCanvas.height);
+  let snowSpeedMove = 0;
+  let snowSizeMove = 0;
+  let snowCenturyMove = 0;
+  if(snowOldSpeed !== snowSpeed) snowSpeedMove = snowSpeed - snowOldSpeed;
+  if(snowOldSize !== snowSize) snowSizeMove = snowSize - snowOldSize;
+  if(snowOldCentury !== snowCentury) snowCenturyMove = snowCentury - snowOldCentury;
+  if(snows.length < snowCount) snowPush(snowCount - snows.length);
+  if(snows.length > snowCount) for(let i = 0; i < snows.length - snowCount; i++) {
+    snows.pop();
+  }
   snows.forEach((i, idx) => {
+    i.speed += snowSpeedMove;
+    i.size += snowSizeMove;
+    i.wind += snowCenturyMove;
+    if(i.alpha < snowMinOpacity) i.alpha = snowMinOpacity;
+    if(i.alpha > snowMaxOpacity) i.alpha = snowMaxOpacity;
+    if(i.speed < 0.001) i.speed = 0.001;
+    if(i.size < 0.001) i.size = 0.001;
+    if(snowCentury === 0) i.wind = 0;
     i.y += i.velY;
     if(i.y + i.size < $snowCanvas.height) {
       i.x += i.velX;
@@ -126,6 +142,9 @@ function snowMove() {
     snowCtx.fill();
     snowCtx.beginPath();
   })
+  snowOldSpeed = snowSpeed;
+  snowOldSize = snowSize;
+  snowOldCentury = snowCentury;
   requestAnimationFrame(snowMove);
 }
 
